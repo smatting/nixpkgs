@@ -7,6 +7,17 @@
 assert cudnn == null || cudatoolkit != null;
 assert !cudaSupport || cudatoolkit != null;
 
+# NOTE: To be able to use the CUDA version of this package,
+# you need to manually load the CUDA library from your installed nvidia driver.
+# On NixOs machine this can be done by adding
+#
+# environment.variables = {
+#     LD_PRELOAD = "${pkgs.linuxPackages.nvidia_x11}/lib/libcuda.so:${pkgs.linuxPackages.nvidia_x11}/lib/libnvidia-fatbinaryloader.so";
+# };
+#
+# to your configuration.nix
+
+
 let
   cudatoolkit_joined = symlinkJoin {
     name = "${cudatoolkit.name}-unsplit";
@@ -81,7 +92,9 @@ in buildPythonPackage rec {
      cmake
      utillinux
      which
-  ];
+     numpy.blas
+  ] ++ lib.optionals cudaSupport [ cudatoolkit_joined cudnn ]
+    ++ lib.optionals stdenv.isLinux [ numactl ];
 
   buildInputs = [
      numpy.blas
@@ -92,7 +105,9 @@ in buildPythonPackage rec {
     cffi
     numpy
     pyyaml
-  ] ++ lib.optional (pythonOlder "3.5") typing;
+    numpy.blas
+  ] ++ lib.optional (pythonOlder "3.5") typing
+    ++ lib.optionals cudaSupport [ cudatoolkit_joined cudnn ];
 
   checkInputs = [ hypothesis ];
   checkPhase = ''
