@@ -9,7 +9,7 @@ assert !cudaSupport || cudatoolkit != null;
 
 # NOTE: To be able to use the CUDA version of this package,
 # you need to manually load the CUDA library from your installed nvidia driver.
-# On NixOs machine this can be done by adding
+# On a NixOs machine this can be done by adding
 #
 # environment.variables = {
 #     LD_PRELOAD = "${pkgs.linuxPackages.nvidia_x11}/lib/libcuda.so:${pkgs.linuxPackages.nvidia_x11}/lib/libnvidia-fatbinaryloader.so";
